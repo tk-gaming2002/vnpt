@@ -1,48 +1,53 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import ListScreen from '../vnpt/List';
+import AccountScreen from '../vnpt/Account';
+import AddScreen from '../vnpt/Add';
+import TaskScreen from '../vnpt/Task';
+import HomeScreen from './Home';
 
-function HomeScreen() {
+
+const MainScreen = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
-    <View style={styles.screen}>
-      {/* Nội dung */}
+    <View style={{ flex: 1 }}>
+      <TouchableOpacity onPress={() => setModalVisible(true)}>
+        <Text>Mở Modal</Text>
+      </TouchableOpacity>
+
+      <Add modalVisible={modalVisible} onClose={() => setModalVisible(false)} />
     </View>
   );
-}
+};
 
-function AddScreen() {
+
+
+function CheckScreen() {
   return (
     <View style={styles.screen}>
-      {/* Nội dung */}
-    </View>
-  );
-}
-
-function TaskScreen() {
-  return (
-    <View style={styles.screen}>
-      {/* Nội dung */}
-    </View>
-  );
-}
-
-function SettingsScreen() {
-  return (
-    <View style={styles.screen}>
-      {/* Nội dung */}
+      <Text> check add</Text>
     </View>
   );
 }
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 function CustomTabBar({ state, descriptors, navigation }) {
   return (
     <View style={styles.tabBar}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
-        const label = options.tabBarLabel !== undefined ? options.tabBarLabel : options.title !== undefined ? options.title : route.name;
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
 
         const isFocused = state.index === index;
 
@@ -58,19 +63,18 @@ function CustomTabBar({ state, descriptors, navigation }) {
           }
         };
 
-        // Nút giữa
         if (route.name === 'Add') {
           return (
             <TouchableOpacity
               key={index}
-              onPress={onPress}
+              onPress={onPress} // Điều hướng đến Add
               style={styles.addButton}
             >
               <Image source={require('../vnpt/asset/list/add.png')} style={styles.iconAdd} />
             </TouchableOpacity>
           );
         }
-      
+
         return (
           <TouchableOpacity
             key={index}
@@ -79,15 +83,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
           >
             {isFocused && <View style={styles.activeLine} />}
             <Image
-              source={
-                label === 'Home'
-                  ? require('../vnpt/asset/list/home.png')
-                  : label === 'List'
-                  ? require('../vnpt/asset/list/checklist.png')
-                  : label === 'Tasks'
-                  ? require('../vnpt/asset/list/add_task.png')
-                  : require('../vnpt/asset/list/check_box.png')
-              }
+              source={getIconForTab(label)}
               style={styles.icon}
             />
           </TouchableOpacity>
@@ -96,22 +92,51 @@ function CustomTabBar({ state, descriptors, navigation }) {
     </View>
   );
 }
-function MainNavigator() {
+
+const getIconForTab = (label) => {
+  switch (label) {
+    case 'Home':
+      return require('../vnpt/asset/list/home.png');
+    case 'List':
+      return require('../vnpt/asset/list/checklist.png');
+    case 'Tasks':
+      return require('../vnpt/asset/list/add_task.png');
+    default:
+      return require('../vnpt/asset/list/check_box.png');
+  }
+};
+
+function AccountButton() {
+  const navigation = useNavigation();
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Main" component={Bar} />
+    <TouchableOpacity onPress={() => navigation.navigate('Account')} style={styles.accountButton}>
+      <Image source={require('../vnpt/asset/list/account.png')} style={styles.iconAccount} />
+    </TouchableOpacity>
+  );
+}
+
+export default function Bar() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Account" component={AccountScreen}
+      options={{ headerShown: true, title: 'Thông tin cá nhân', headerStyle: {backgroundColor: '#1e76da'}, headerTintColor: '#fff', headerTitleStyle: {fontWeight: 'bold'}, headerTitleAlign: 'center'}} />
     </Stack.Navigator>
   );
 }
-export default function Bar() {
+
+function MainTabs() {
   return (
-    <Tab.Navigator tabBar={props => <CustomTabBar {...props} options={{ headerShown: false }} />}>
-      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="List" component={ListScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Add" component={AddScreen} options={{ tabBarLabel: 'Thêm', headerShown: false }} />
-      <Tab.Screen name="Tasks" component={TaskScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
-    </Tab.Navigator>
+    <>
+      <Tab.Navigator tabBar={props => <CustomTabBar {...props} />} >
+        <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Tab.Screen name="List" component={ListScreen} options={{ headerShown: false }} />
+        <Tab.Screen name="Add" component={AddScreen} options={{ tabBarLabel: 'Thêm', headerShown: false }} /> 
+        <Tab.Screen name="Task" component={TaskScreen} options={{ headerShown: false }} />
+        <Tab.Screen name="Check" component={CheckScreen} options={{ headerShown: false }} />
+      </Tab.Navigator>
+      <AccountButton />
+    </>
   );
 }
 
@@ -132,7 +157,7 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,  
+    flex: 1,
   },
   icon: {
     width: 30,
@@ -152,10 +177,19 @@ const styles = StyleSheet.create({
     marginTop: -30,
   },
   activeLine: {
-    height: 5,  // dày
-    width: '75%',  // rộng ngang tab
-    backgroundColor: '#E4711B', 
+    height: 5,
+    width: '75%',
+    backgroundColor: '#D21316',
     position: 'absolute',
-    top: -12,  // line màu
+    top: -12,
+  },
+  accountButton: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+  },
+  iconAccount: {
+    width: 30,
+    height: 30,
   },
 });
