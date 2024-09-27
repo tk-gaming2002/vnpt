@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { Icon, Image } from 'react-native-elements';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { Image } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
 const App = () => {
   const [username, setUsername] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [issues, setIssues] = useState([]);
-  const navigation = useNavigation();
 
   // Lấy tên người dùng từ AsyncStorage
   useEffect(() => {
@@ -50,55 +48,20 @@ const App = () => {
     fetchIssues();
   }, []);
 
-  const handleLogout = async () => {
-    Alert.alert(
-      'Xác nhận',
-      'Bạn có chắc chắn muốn đăng xuất?',
-      [
-        {
-          text: 'Hủy',
-          style: 'cancel',
-        },
-        {
-          text: 'Đăng xuất',
-          onPress: async () => {
-            try {
-              await AsyncStorage.removeItem('isLoggedIn');
-              await AsyncStorage.removeItem('username');
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              });
-            } catch (error) {
-              console.error('Lỗi khi đăng xuất:', error);
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
-
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.title}>{item.summary}</Text>
-      <Text style={styles.service}>Mã vấn đề: {item.id}</Text>
-      <Text style={styles.date}>Người báo cáo: {item.reporter.name}</Text>
-      <Text style={styles.status}>Dự án: {item.project.name}</Text>
-      <Text style={styles.status}>Mô tả: {item.description}</Text>
+      <Text style={styles.title}>{item?.summary || 'Không có tiêu đề'}</Text>
+      <Text style={styles.service}>Dịch vụ: {item?.project?.name || 'Không có dự án'}</Text>
+      <Text style={styles.date}>Ngày tạo: {item?.created_at || 'Không có ngày tạo'}</Text>
+      <Text style={styles.status}>Trạng thái: {item?.status?.id?.name?.label?.color || 'Không có trạng thái'}</Text>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Hệ thống hỗ trợ dịch vụ VNPT Nghệ An</Text>
-        <TouchableOpacity style={styles.userIcon} onPress={handleLogout}>
-          <Image
-            source={require('../vnpt/asset/list/account.png')}
-            style={styles.logoutimg}
-            />
-        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -109,14 +72,52 @@ const App = () => {
         <Image
             source={require('../vnpt/asset/list/arrow_dropdown.png')}
             style={styles.arrow}
-            />
+        />
       </TouchableOpacity>
 
       {dropdownVisible && (
         <View style={[styles.dropdownContent, { position: 'absolute', top: 130, zIndex: 10 }]}>
-          <Text style={styles.serviceItem}>Dịch vụ 1: Công việc thường kỳ khác</Text>
-          <Text style={styles.serviceItem}>Dịch vụ 2: Công việc theo dự án</Text>
-          <Text style={styles.serviceItem}>Dịch vụ 3: Dịch vụ tư vấn</Text>
+          <ScrollView style={{ maxHeight: 200 }}>
+            <Text style={styles.serviceItem}>Hỗ trợ hệ thống văn bản nội bộ VNPT eOffice</Text>
+            <Text style={styles.serviceItem}>Cổng thông tin du lịch Nghệ An VNPT Smart Tourism</Text>
+            <Text style={styles.serviceItem}>HNTT & ATBMTT</Text>
+            <Text style={styles.serviceItem}>Quản trị mạng</Text>
+            <Text style={styles.serviceItem}>Sổ tay đảng viên</Text>
+            <Text style={styles.serviceItem}>TT ĐH an toàn - an ninh mạng (SOC)</Text>
+            <Text style={styles.serviceItem}>Dịch vụ IT Professionnal Services</Text>
+            <Text style={styles.serviceItem}>Dịch vụ phòng chống tấn công VNPT antiDDOS</Text>
+            <Text style={styles.serviceItem}>Giải pháp VNPT DNS Protection</Text>
+            <Text style={styles.serviceItem}>Giải pháp VNPT Smart IR</Text>
+            <Text style={styles.serviceItem}>Giám sát ATTT - VNPT MSS</Text>
+            <Text style={styles.serviceItem}>Kiếm tử thâm nhập - VNPT Pentest</Text>
+            <Text style={styles.serviceItem}>Tư vấn ATTT</Text>
+            <Text style={styles.serviceItem}>Đào tạo ATTT</Text>
+            <Text style={styles.serviceItem}>Hệ thống CSKH tự động</Text>
+            <Text style={styles.serviceItem}>Hệ thống hỗ trợ dịch vụ VNPT Nghệ An</Text>
+            <Text style={styles.serviceItem}>Hệ thống hỗ trợ ONE BSS TTKD</Text>
+            <Text style={styles.serviceItem}>Hệ thống hỗ trợ ONE BSS VTT</Text>
+            <Text style={styles.serviceItem}>Hệ thống phần mềm dữ liệu nội bộ</Text>
+            <Text style={styles.serviceItem}>Hệ thống Quiz daily VNPT Nghệ An</Text>
+            <Text style={styles.serviceItem}>Biên lai điện tử VNPT eReceipt</Text>
+            <Text style={styles.serviceItem}>Camera giám sát thông minh VNPT AI Camera</Text>
+            <Text style={styles.serviceItem}>Cổng thông tin điện tử vnPortal/VNPT Portal</Text>
+            <Text style={styles.serviceItem}>Dịch vụ lắng nghe xã hội vnSocial</Text>
+            <Text style={styles.serviceItem}>Dịch vụ phần mềm dữ liệu mở</Text>
+            <Text style={styles.serviceItem}>Dịch vụ và dự án chính quyền số khác</Text>
+            <Text style={styles.serviceItem}>Dịch vụ xác thực định danh KYC IDCheck</Text>
+            <Text style={styles.serviceItem}>Hệ thống báo cáo thông minh VNPT VSR(LRIS)</Text>
+            <Text style={styles.serviceItem}>Hệ thống CSDL quốc gia về dân cư</Text>
+            <Text style={styles.serviceItem}>Hệ thống một cửa hàng liên thông VNPT iGate</Text>
+            <Text style={styles.serviceItem}>Hệ thống nền tảng tích hợp và chia sẻ dữ liệu VXP</Text>
+            <Text style={styles.serviceItem}>Hệ thống nền tảng tích hợp và chia sẻ dữ liệu cấp tỉnh (LGSP) tỉnh Nghệ An</Text>
+            <Text style={styles.serviceItem}>Hệ thống phòng họp không giấy tờ VNPT eCabinet</Text>
+            <Text style={styles.serviceItem}>Hệ thống quản lý công chức viên chức CCVC</Text>
+            <Text style={styles.serviceItem}>Hệ thống quản lý phản ảnh và tương tác trực tuyến VNPT ORIM-X</Text>
+            <Text style={styles.serviceItem}>Hệ thống quản lý văn bản điều hành VNPT iOffice</Text>
+            <Text style={styles.serviceItem}>Hệ thống quản lý đất đai VNPT iLIS</Text>
+            <Text style={styles.serviceItem}>Trung tâm điều hành thông minh VNPT IOC</Text>
+            <Text style={styles.serviceItem}>Nên tảng kết nối internet vạn vật VNPT IOT Platfrom</Text>
+          </ScrollView>
         </View>
       )}
 
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
     backgroundColor: 'white',
@@ -148,13 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#0c76d3',
-  },
-  logoutimg: {
-    width: 30,  
-    height: 30, 
-  },
-  userIcon: {
-    padding: 5,
+    textAlign: 'left',
   },
   arrow: {
     width: 30,  
@@ -178,14 +173,14 @@ const styles = StyleSheet.create({
   },
   dropdownContent: {
     position: 'absolute',
-  top: 100,
-  left: 15,
-  right: 15,
-  borderWidth: 1,
-  borderColor: '#0c76d3',
-  borderRadius: 10, 
-  backgroundColor: '#fff',
-  zIndex: 10,
+    top: 100,
+    left: 15,
+    right: 15,
+    borderWidth: 1,
+    borderColor: '#0c76d3',
+    borderRadius: 10, 
+    backgroundColor: '#fff',
+    zIndex: 10,
   },
   serviceItem: {
     fontSize: 14,
